@@ -22,7 +22,7 @@ jumpRates = energyLandscape.getJumpRates("CSP", attemptFreq, beta, minJumpBarrie
 chemPot = energyLandscape.getChemPot(c, beta) # scalar value
 eqOccNum = energyLandscape.getEqOccupationNumbers(c, beta) # 3D matrix
 
-def K1Single(i: tuple):
+def K1Single(i: tuple) -> float:
     """Calculation of a single entry of K1, CSP model for jump rates is implied"""
     global jumpRates
 
@@ -38,8 +38,13 @@ def K1Single(i: tuple):
 
     return term1 + term2
 
+def K2Single(i: tuple, j: tuple) -> float:
+    term1 = acc(jumpRates, j)
+    term2_1 = sum([acc(jumpRates, k) * acc(eqOccNum, k) for k in getNN(jumpRates, i, getIdx=True) if not np.all([k, j])])
+    term2 = (acc(jumpRates, i) - acc(jumpRates, j)) / D(i,j) * term2_1
+    
 def D(pos1: tuple, pos2: tuple):
-    """Denominator term in eq. 17
+    """Denominator term in eq. 17s
         pos1: i, pos2: j"""
     
     return 1/acc(eqOccNum, pos1) * (
