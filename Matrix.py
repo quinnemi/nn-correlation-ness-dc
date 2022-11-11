@@ -11,20 +11,23 @@ Elements of K can be grouped into three cases:
 import numpy as np
 from EnergyLandscape import EnergyLandscape
 import matplotlib.pyplot as plt
+from numba import njit
+import configparser
 import timeit
 
-L = 5
-c = 0.1
-beta = 1
-minJumpBarrier = 1
-attemptFreq = 1
+config = configparser.ConfigParser()
+config.read('config.ini')
+L = int(config['SYSTEM PARAMETERS']['L'])
+C = float(config['SYSTEM PARAMETERS']['c'])
+BETA = float(config['SYSTEM PARAMETERS']['beta'])
+MINJUMPBARRIER = float(config['SYSTEM PARAMETERS']['minJumpBarrier'])
+ATTEMPTFREQ = float(config['SYSTEM PARAMETERS']['attemptFreq'])
 
 energyLandscape = EnergyLandscape(L, pattern="checker") # 3D matrix
-jumpRates = energyLandscape.getJumpRates("CSP", attemptFreq, beta, minJumpBarrier=minJumpBarrier) # 3D matrix
-chemPot = energyLandscape.getChemPot(c, beta) # scalar value
-eqOccNum = energyLandscape.getEqOccupationNumbers(c, beta) # 3D matrix
+jumpRates = energyLandscape.getJumpRates("CSP", ATTEMPTFREQ, BETA, minJumpBarrier=MINJUMPBARRIER) # 3D matrix
+eqOccNum = energyLandscape.getEqOccupationNumbers(C, BETA) # 3D matrix
 
-
+@njit(cache=True)
 def K() -> np.array:
     idxList = []
     for z in range(L):
@@ -43,28 +46,20 @@ def K() -> np.array:
             K[tupleToIndex(i)][tupleToIndex(j)] = K2(i, j)
         for j in nnn:
             K[tupleToIndex(i)][tupleToIndex(j)] = K3(i, j)
-
-        """
-        calculations = 0
-        for j, idxJ in enumerate(idxList):
-            if isInList(idxJ, nnn):
-                K[i][j] = K3(idxI, idxJ)
-                calculations += 1
-                continue
-            if isInList(idxJ, nn):
-                K[i][j] = K2(idxI, idxJ)
-                calculations += 1
-                continue
-            if eqIdx(idxI,idxJ):
-                K[i][j] = K1(idxI)
-                calculations += 1
-                continue
-            if calculations == len(nnn) + len(nn) + 1:
-                break
-        """
     
     return K
+
+@njit(cache=True)
+def acc(array: np.array, tuple: tuple) -> float:
+    """Access 3D array via 3-tuple"""
+    i = tuple[0]
+    j = tuple[1]
+    k = tuple[2]
+    a = array[int(i)][int(j)][int(k)]
     
+    return a
+
+@njit(cache=True)
 def K1(i: tuple) -> float:
     """Calculation of a single entry of K1 (i,j are equal sites)
         CSP model for jump rates is implied"""
@@ -83,6 +78,7 @@ def K1(i: tuple) -> float:
 
     return term1 + term2
 
+@njit(cache=True)
 def K2(i: tuple, j: tuple) -> float:
     """Calculation of a single entry of K2 (i,j are nearest neighbors)
         CSP model for jump rates is implied"""
@@ -99,6 +95,7 @@ def K2(i: tuple, j: tuple) -> float:
 
     return term1 + term2 + term3
 
+@njit(cache=True)
 def K3(i: tuple, j: tuple) -> float:
     """Calculation of a single entry of K2 (i,j are next nearest neighbors)
         CSP model for jump rates is implied"""
@@ -109,6 +106,7 @@ def K3(i: tuple, j: tuple) -> float:
 
     return term1
 
+@njit(cache=True)
 def D(pos1: tuple, pos2: tuple) -> float:
     """Denominator term in eq. 17s
         pos1: i, pos2: j"""
@@ -122,63 +120,83 @@ def D(pos1: tuple, pos2: tuple) -> float:
 
 ############################## Supporting functions ##############################
 
-
-def acc(array: np.array, tuple: tuple) -> float:
-    """Access 3D array via 3-tuple"""
-    return array[tuple[0]][tuple[1]][tuple[2]]
-
+@njit(cache=True)
 def eqIdx(i: tuple, j: tuple) -> bool:
     """Check indexes for equality"""
-    return np.all([a == b for a,b in list(zip(i,j))])
+    res = [0, 0, 0]
+    for n in range(3):
+        res[n] = (i[n] == j[n])
+    
+    return res[0] and res[1] and res[2]
 
+@njit(cache=True)
 def pIdx(j: int) -> int:
         """Returns periodic index"""
         global L 
-        return j % L 
+        return int(j % L)
 
+@njit(cache=True)
 def getNN(a: np.array, i: tuple) -> np.array:
     """Returns entries of nearest neighbors in a periodic 3D array 'a' at position i"""
     
     x,y,z = i
     return np.array([
-        a[z][y][x-1], a[z][y][pIdx(x+1)],
-        a[z][y-1][x], a[z][pIdx(y+1)][x],
-        a[z-1][y][x], a[pIdx(z+1)][y][x]
+        a[z][y][pIdx(x-1)], a[z][y][pIdx(x+1)],
+        a[z][pIdx(y-1)][x], a[z][pIdx(y+1)][x],
+        a[pIdx(z-1)][y][x], a[pIdx(z+1)][y][x]
     ])
 
+@njit(cache=True)
 def getNNidx(i: tuple) -> np.array:
     """Returns indexes of nearest neighbors in a periodic 3D array of size L at position i"""
     
     x,y,z = i
+    x = int(x)
+    y = int(y)
+    z = int(z)
     return np.array([
-        (x-1,y,z), (pIdx(x+1),y,z),
-        (x,y-1,z), (x,pIdx(y+1),z),
-        (x,y,z-1), (x,y,pIdx(z+1))
-    ])
+        (pIdx(x-1),y,z), (pIdx(x+1),y,z),
+        (x,pIdx(y-1),z), (x,pIdx(y+1),z),
+        (x,y,pIdx(z-1)), (x,y,pIdx(z+1))
+    ], dtype=np.int32)
 
+@njit(cache=True)
 def getNNNidx(i: tuple) -> np.array:
     """Returns indexes of next nearest neighbors in a periodic 3D array of size L at position i"""
 
-    allNNN = np.array([getNNidx(j) for j in getNNidx(i)])
-    allNNN = np.reshape(allNNN, (36, 3))
-    filteredNNN = []
+    # gather all candidates for nnn by collecting nn of nn of i
+    allNNN = np.zeros((36, 3), dtype=np.int32)
+    idx = 0
+    for nnOfI in getNNidx(i):
+        for nnOfnn in getNNidx(nnOfI):
+            allNNN[idx] = nnOfnn
+            idx += 1
+
+    #print(f'allNNN: {allNNN}')
+
+    #allNNN = np.array([getNNidx(j) for j in getNNidx(i)])
+    #allNNN = np.reshape(allNNN, (36, 3))
+    filteredNNN = np.ones((18, 3), dtype=np.int32)*9999
+    idxJ = 0
     for j in allNNN:
         if (not eqIdx(i, j)): # exclude central site
+
             # only allow unique indexes
             jInFilteredNNN = False
             for k in filteredNNN:
                 if eqIdx(j, k):
                     jInFilteredNNN = True
                     break
+
             if not jInFilteredNNN:
-                filteredNNN.append(j)
-    
-    return np.array(filteredNNN)
+                filteredNNN[idxJ] = j
+                idxJ += 1 
+    return filteredNNN
 
-def isInList(i: tuple, list: np.array):
-    return np.any([eqIdx(i, list[j]) for j in range(len(list))])
-
+@njit(cache=True)
 def tupleToIndex(t: tuple) -> int:
     return t[0] + t[1]*L + t[2]*L**2
 
-print(timeit.timeit(K, number=10))
+#print(timeit.timeit(K, number=100))
+mat = K()
+print(np.linalg.det(mat))

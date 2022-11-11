@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import optimize
 import matplotlib.pyplot as plt
+from numba import njit
 
 class EnergyLandscape:
 
@@ -44,6 +45,7 @@ class EnergyLandscape:
         energyDist, bins = np.histogram(sortedEnergies, bins=nBins, density=True) # energyDist ^= g(E), bins ^= E
 
         # equation determining mu
+        @njit
         def approx(mu):
             dEBin = (bins[1]-bins[0])/2 # offset bin edge value - site energy value
             sum = 0
