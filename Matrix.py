@@ -181,4 +181,6 @@ def isInList(i: tuple, list: np.array):
 def tupleToIndex(t: tuple) -> int:
     return t[0] + t[1]*L + t[2]*L**2
 
-print(timeit.timeit(K, number=10))
+#print(timeit.timeit(K, number=10))
+mat = K()
+print(np.linalg.det(mat))
