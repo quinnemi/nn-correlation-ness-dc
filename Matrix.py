@@ -41,28 +41,12 @@ def K() -> np.array:
         K[tupleToIndex(i)][tupleToIndex(i)] = logK1 = K1(i)
         for j in nn:
             K[tupleToIndex(i)][tupleToIndex(j)] = logK2 = K2(i, j)
+            # print(logK2)
         for j in nnn:
             K[tupleToIndex(i)][tupleToIndex(j)] = logK3 = K3(i, j)
+            # print(logK3)
 
-        print(logK1)
-        """
-        calculations = 0
-        for j, idxJ in enumerate(idxList):
-            if isInList(idxJ, nnn):
-                K[i][j] = K3(idxI, idxJ)
-                calculations += 1
-                continue
-            if isInList(idxJ, nn):
-                K[i][j] = K2(idxI, idxJ)
-                calculations += 1
-                continue
-            if eqIdx(idxI,idxJ):
-                K[i][j] = K1(idxI)
-                calculations += 1
-                continue
-            if calculations == len(nnn) + len(nn) + 1:
-                break
-        """
+        # print(logK1)
     
     return K
     
