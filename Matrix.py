@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from numba import njit
 import configparser
 import timeit
+from pathlib import Path
 #
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -47,9 +48,9 @@ def K() -> np.array:
             # print(logK2)
         for j in nnn:
             K[tupleToIndex(i)][tupleToIndex(j)] = logK3 = K3(i, j)
-            # print(logK3)
+            print(logK3)
 
-        # print(logK1)
+        #print(logK1)
     
     return K
 
@@ -206,3 +207,6 @@ mat = K()
 print(np.linalg.det(mat))
 plt.matshow(mat)
 plt.show()
+
+with open(Path(__file__).parent.parent / "data" / "K_numba") as file:
+    file.write(str(mat))
