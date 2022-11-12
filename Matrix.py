@@ -12,6 +12,7 @@ import numpy as np
 from EnergyLandscape import EnergyLandscape
 import matplotlib.pyplot as plt
 import timeit
+from pathlib import Path
 
 L = 3
 c = 0.1
@@ -19,10 +20,10 @@ beta = 1
 minJumpBarrier = 1
 attemptFreq = 1
 
-energyLandscape = EnergyLandscape(L, pattern="checker") # 3D matrix
-jumpRates = energyLandscape.getJumpRates("CSP", attemptFreq, beta, minJumpBarrier=minJumpBarrier) # 3D matrix
-chemPot = energyLandscape.getChemPot(c, beta) # scalar value
-eqOccNum = energyLandscape.getEqOccupationNumbers(c, beta) # 3D matrix
+#energyLandscape = EnergyLandscape(L, pattern="checker") # 3D matrix
+#jumpRates = energyLandscape.getJumpRates("CSP", attemptFreq, beta, minJumpBarrier=minJumpBarrier) # 3D matrix
+#chemPot = energyLandscape.getChemPot(c, beta) # scalar value
+#eqOccNum = energyLandscape.getEqOccupationNumbers(c, beta) # 3D matrix
 
 
 def K() -> np.array:
@@ -160,14 +161,27 @@ def getNNNidx(i: tuple) -> np.array:
     
     return np.array(filteredNNN)
 
-def isInList(i: tuple, list: np.array):
-    return np.any([eqIdx(i, list[j]) for j in range(len(list))])
-
 def tupleToIndex(t: tuple) -> int:
     return t[0] + t[1]*L + t[2]*L**2
 
 #print(timeit.timeit(K, number=10))
-mat = K()
-print(np.linalg.det(mat))
-plt.matshow(mat)
-plt.show()
+#mat = K()
+#print(np.linalg.det(mat))
+#plt.matshow(mat)
+#plt.show()
+
+#with open(Path(__file__).parent.parent.parent / "data" / "K_pure_python", 'w+') as file:
+#    file.write(str(mat))
+
+a = np.array([[[1.,2.,3.],[4.,5.,6.],[7.,8.,9.]],
+              [[10.,11.,12.],[13.,14.,15.],[16.,17.,18.]],
+              [[19.,20.,21.],[22.,23.,24.],[25.,26.,27.]]])
+i = (1,0,2)
+j = (1,0,0)
+k = (-3,4,5)
+print(f'acc: {a, i}')
+print(f'eqIdx: {eqIdx(i,i)}, {eqIdx(i,j)}')
+print(f'pIdx: {pIdx(k[0])}, {pIdx(k[1]), {pIdx(k[2])}}')
+print(f'getNNidx: {getNNidx(i)}')
+print(f'getNNNidx: {getNNNidx(i)}')
+print(f'tupleToIndex: {tupleToIndex(i)}')
