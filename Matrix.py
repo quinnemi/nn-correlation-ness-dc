@@ -13,7 +13,7 @@ from EnergyLandscape import EnergyLandscape
 import matplotlib.pyplot as plt
 import timeit
 
-L = 5
+L = 3
 c = 0.1
 beta = 1
 minJumpBarrier = 1
@@ -38,12 +38,13 @@ def K() -> np.array:
         nn = getNNidx(i)
         nnn = getNNNidx(i)
 
-        K[tupleToIndex(i)][tupleToIndex(i)] = K1(i)
+        K[tupleToIndex(i)][tupleToIndex(i)] = logK1 = K1(i)
         for j in nn:
-            K[tupleToIndex(i)][tupleToIndex(j)] = K2(i, j)
+            K[tupleToIndex(i)][tupleToIndex(j)] = logK2 = K2(i, j)
         for j in nnn:
-            K[tupleToIndex(i)][tupleToIndex(j)] = K3(i, j)
+            K[tupleToIndex(i)][tupleToIndex(j)] = logK3 = K3(i, j)
 
+        print(logK1)
         """
         calculations = 0
         for j, idxJ in enumerate(idxList):
