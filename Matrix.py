@@ -169,3 +169,5 @@ def tupleToIndex(t: tuple) -> int:
 #print(timeit.timeit(K, number=10))
 mat = K()
 print(np.linalg.det(mat))
+plt.matshow(mat)
+plt.show()
