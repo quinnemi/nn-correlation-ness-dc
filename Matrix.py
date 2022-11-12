@@ -44,10 +44,12 @@ def K() -> np.array:
         K[tupleToIndex(i)][tupleToIndex(i)] = logK1 = K1(i)
         for j in nn:
             K[tupleToIndex(i)][tupleToIndex(j)] = logK2 = K2(i, j)
+            # print(logK2)
         for j in nnn:
             K[tupleToIndex(i)][tupleToIndex(j)] = logK3 = K3(i, j)
+            # print(logK3)
 
-        print(logK1)
+        # print(logK1)
     
     return K
 
@@ -202,3 +204,5 @@ def tupleToIndex(t: tuple) -> int:
 #print(timeit.timeit(K, number=100))
 mat = K()
 print(np.linalg.det(mat))
+plt.matshow(mat)
+plt.show()
