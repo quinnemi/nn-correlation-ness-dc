@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from numba import njit
 import configparser
 import timeit
-# 
+#
 config = configparser.ConfigParser()
 config.read('config.ini')
 L = int(config['SYSTEM PARAMETERS']['L'])
