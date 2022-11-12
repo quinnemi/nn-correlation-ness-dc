@@ -24,9 +24,9 @@ BETA = float(config['SYSTEM PARAMETERS']['beta'])
 MINJUMPBARRIER = float(config['SYSTEM PARAMETERS']['minJumpBarrier'])
 ATTEMPTFREQ = float(config['SYSTEM PARAMETERS']['attemptFreq'])
 
-energyLandscape = EnergyLandscape(L, pattern="checker") # 3D matrix
-jumpRates = energyLandscape.getJumpRates("CSP", ATTEMPTFREQ, BETA, minJumpBarrier=MINJUMPBARRIER) # 3D matrix
-eqOccNum = energyLandscape.getEqOccupationNumbers(C, BETA) # 3D matrix
+#energyLandscape = EnergyLandscape(L, pattern="checker") # 3D matrix
+#jumpRates = energyLandscape.getJumpRates("CSP", ATTEMPTFREQ, BETA, minJumpBarrier=MINJUMPBARRIER) # 3D matrix
+#eqOccNum = energyLandscape.getEqOccupationNumbers(C, BETA) # 3D matrix
 
 @njit(cache=True)
 def K() -> np.array:
@@ -48,7 +48,7 @@ def K() -> np.array:
             # print(logK2)
         for j in nnn:
             K[tupleToIndex(i)][tupleToIndex(j)] = logK3 = K3(i, j)
-            print(logK3)
+            # print(logK3)
 
         #print(logK1)
     
@@ -203,10 +203,23 @@ def tupleToIndex(t: tuple) -> int:
     return t[0] + t[1]*L + t[2]*L**2
 
 #print(timeit.timeit(K, number=100))
-mat = K()
-print(np.linalg.det(mat))
-plt.matshow(mat)
-plt.show()
+#mat = K()
+#print(np.linalg.det(mat))
+#plt.matshow(mat)
+#plt.show()
 
-with open(Path(__file__).parent.parent.parent / "data" / "K_numba", 'w+') as file:
-    file.write(str(mat))
+#with open(Path(__file__).parent.parent.parent / "data" / "K_numba", 'w+') as file:
+#    file.write(str(mat))
+
+a = np.array([[[1.,2.,3.],[4.,5.,6.],[7.,8.,9.]],
+              [[10.,11.,12.],[13.,14.,15.],[16.,17.,18.]],
+              [[19.,20.,21.],[22.,23.,24.],[25.,26.,27.]]])
+i = (1,0,2)
+j = (1,0,0)
+k = (-3,4,5)
+print(f'acc: {a, i}')
+print(f'eqIdx: {eqIdx(i,i)}, {eqIdx(i,j)}')
+print(f'pIdx: {pIdx(k[0])}, {pIdx(k[1])}, {pIdx(k[2])}')
+print(f'getNNidx: {getNNidx(i)}')
+print(f'getNNNidx: {getNNNidx(i)}')
+print(f'tupleToIndex: {tupleToIndex(i)}')
