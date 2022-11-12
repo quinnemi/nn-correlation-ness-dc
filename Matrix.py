@@ -208,5 +208,5 @@ print(np.linalg.det(mat))
 plt.matshow(mat)
 plt.show()
 
-with open(Path(__file__).parent.parent / "data" / "K_numba") as file:
+with open(Path(__file__).parent.parent.parent / "data" / "K_numba", 'w+') as file:
     file.write(str(mat))
