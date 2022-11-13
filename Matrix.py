@@ -20,11 +20,9 @@ beta = 1
 minJumpBarrier = 1
 attemptFreq = 1
 
-#energyLandscape = EnergyLandscape(L, pattern="checker") # 3D matrix
-#jumpRates = energyLandscape.getJumpRates("CSP", attemptFreq, beta, minJumpBarrier=minJumpBarrier) # 3D matrix
-#chemPot = energyLandscape.getChemPot(c, beta) # scalar value
-#eqOccNum = energyLandscape.getEqOccupationNumbers(c, beta) # 3D matrix
-
+energyLandscape = EnergyLandscape(L, pattern="checker") # 3D matrix
+jumpRates = energyLandscape.getJumpRates("CSP", attemptFreq, beta, minJumpBarrier=minJumpBarrier) # 3D matrix
+eqOccNum = energyLandscape.getEqOccupationNumbers(c, beta) # 3D matrix
 
 def K() -> np.array:
     idxList = []
@@ -137,9 +135,9 @@ def getNNidx(i: tuple) -> np.array:
     
     x,y,z = i
     return np.array([
-        (x-1,y,z), (pIdx(x+1),y,z),
-        (x,y-1,z), (x,pIdx(y+1),z),
-        (x,y,z-1), (x,y,pIdx(z+1))
+        (pIdx(x-1),y,z), (pIdx(x+1),y,z),
+        (x,pIdx(y-1),z), (x,pIdx(y+1),z),
+        (x,y,pIdx(z-1)), (x,y,pIdx(z+1))
     ])
 
 def getNNNidx(i: tuple) -> np.array:
@@ -164,24 +162,25 @@ def getNNNidx(i: tuple) -> np.array:
 def tupleToIndex(t: tuple) -> int:
     return t[0] + t[1]*L + t[2]*L**2
 
+def testSupportFuncs():
+    a = np.array([[[1.,2.,3.],[4.,5.,6.],[7.,8.,9.]],
+                [[10.,11.,12.],[13.,14.,15.],[16.,17.,18.]],
+                [[19.,20.,21.],[22.,23.,24.],[25.,26.,27.]]])
+    i = (1,0,2)
+    j = (1,0,0)
+    k = (-3,4,5)
+    print(f'acc: {a, i}')
+    print(f'eqIdx: {eqIdx(i,i)}, {eqIdx(i,j)}')
+    print(f'pIdx: {pIdx(k[0])}, {pIdx(k[1]), {pIdx(k[2])}}')
+    print(f'getNNidx: {getNNidx(i)}')
+    print(f'getNNNidx: {getNNNidx(i)}')
+    print(f'tupleToIndex: {tupleToIndex(i)}')
+
 #print(timeit.timeit(K, number=10))
-#mat = K()
-#print(np.linalg.det(mat))
+mat = K()
+print(np.linalg.det(mat))
 #plt.matshow(mat)
 #plt.show()
 
 #with open(Path(__file__).parent.parent.parent / "data" / "K_pure_python", 'w+') as file:
 #    file.write(str(mat))
-
-a = np.array([[[1.,2.,3.],[4.,5.,6.],[7.,8.,9.]],
-              [[10.,11.,12.],[13.,14.,15.],[16.,17.,18.]],
-              [[19.,20.,21.],[22.,23.,24.],[25.,26.,27.]]])
-i = (1,0,2)
-j = (1,0,0)
-k = (-3,4,5)
-print(f'acc: {a, i}')
-print(f'eqIdx: {eqIdx(i,i)}, {eqIdx(i,j)}')
-print(f'pIdx: {pIdx(k[0])}, {pIdx(k[1]), {pIdx(k[2])}}')
-print(f'getNNidx: {getNNidx(i)}')
-print(f'getNNNidx: {getNNNidx(i)}')
-print(f'tupleToIndex: {tupleToIndex(i)}')
