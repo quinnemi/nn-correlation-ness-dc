@@ -56,7 +56,7 @@ class EnergyLandscape:
         solution = optimize.minimize_scalar(approx, method='brent')
         print(f'Chemical potential: {solution.x}')
         print(f'Root finding converged?: {solution.success}')
-        print(f'Cause of termination of root finding: {solution.message}')
+        #print(f'Cause of termination of root finding: {solution.message}')
 
         self.chemPot = solution.x
 

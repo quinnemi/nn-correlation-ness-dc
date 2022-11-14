@@ -19,18 +19,20 @@ c = 0.1
 beta = 1
 minJumpBarrier = 1
 attemptFreq = 1
+E = np.array((1,0,0))
 
 energyLandscape = EnergyLandscape(L, pattern="checker") # 3D matrix
 jumpRates = energyLandscape.getJumpRates("CSP", attemptFreq, beta, minJumpBarrier=minJumpBarrier) # 3D matrix
 eqOccNum = energyLandscape.getEqOccupationNumbers(c, beta) # 3D matrix
 
+idxList = []
+for z in range(L):
+    for y in range(L):
+        for x in range(L):
+            idxList.append((x,y,z))
+idxList = np.array(idxList)
+
 def K() -> np.array:
-    idxList = []
-    for z in range(L):
-        for y in range(L):
-            for x in range(L):
-                idxList.append((x,y,z))
-    idxList = np.array(idxList)
 
     K = np.zeros((L**3, L**3))
     for i in idxList:
@@ -93,6 +95,34 @@ def K3(i: tuple, j: tuple) -> float:
 
     return term1
 
+def h() -> np.array:
+    return np.array([hi(i) for i in idxList])
+
+def hi(i: tuple) -> float:
+    
+    term1 = 0
+    for j in getNNidx(i):
+        term1 += b(j, i) * acc(jumpRates, j) * acc(eqOccNum, j)
+    term1 *= -(1-acc(eqOccNum, i))
+
+    term2 = 0
+    for j in getNNidx(i):
+        term2_1 = 0
+        for k in getNNidx(i):
+            if not eqIdx(k, j):
+                term2_1 += b(k, i) * acc(jumpRates, k) * acc(eqOccNum, k)
+        term2_1 *= (1-acc(eqOccNum, i)) * acc(eqOccNum, j)
+
+        term2_2 = 0
+        for l in getNNidx(j):
+            if not eqIdx(l, i):
+                term2_2 += b(l, j) * acc(jumpRates, l) * acc(eqOccNum, l)
+        term2_2 *= acc(eqOccNum, i) * (1-acc(eqOccNum, j))
+
+        term2 += (acc(jumpRates, j) - acc(jumpRates, i)) / D(i, j) * (term2_1 + term2_2)
+
+    return term1 + term2
+
 def D(pos1: tuple, pos2: tuple) -> float:
     """Denominator term in eq. 17s
         pos1: i, pos2: j"""
@@ -103,6 +133,8 @@ def D(pos1: tuple, pos2: tuple) -> float:
         sum([acc(jumpRates, p) for p in getNNidx(pos2) if eqIdx(p, pos1)])
     )
 
+def b(i: tuple, j:tuple) -> float:
+    return np.dot(np.array(j)-np.array(i), E)
 
 ############################## Supporting functions ##############################
 
@@ -178,9 +210,14 @@ def testSupportFuncs():
 
 #print(timeit.timeit(K, number=10))
 mat = K()
-print(np.linalg.det(mat))
+hVector = h()
+print(f'Determinant: {np.linalg.det(mat)}')
 #plt.matshow(mat)
 #plt.show()
+
+kappa = np.linalg.solve(mat, hVector)
+print(f'Kappa: {kappa}')
+print(f'Sum(kappa_i): {sum(kappa)}')
 
 #with open(Path(__file__).parent.parent.parent / "data" / "K_pure_python", 'w+') as file:
 #    file.write(str(mat))
