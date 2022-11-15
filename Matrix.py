@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import timeit
 from pathlib import Path
 
-L = 3
+L = 15
 c = 0.1
 beta = 1
 minJumpBarrier = 1
