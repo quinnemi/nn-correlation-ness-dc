@@ -26,7 +26,45 @@ class EnergyLandscape {
                 set(energies, indexToTuple(i), (double)(i%2));
             }
         }
-    
+
+        double approx(double c) {
+            return c-1;
+        }
+
+        void testBisection() {
+            double result = bisection(-10, 10, 0.001, 1000);
+            cout << endl << result << endl;
+            cout << approx(result) << endl;
+        }
+
+        double bisection(double a, double b, double tol, int nMax) {
+            int n = 1;
+            double c;
+            double fc;
+            double fa = approx(a);
+            double fb = approx(b);
+            if (!(((fa < 0) && (fb > 0)) || ((fa > 0) && (fb < 0)))) {
+                cerr << "Bisection: f(a) < 0 and f(b) > 0 or f(a) > 0 and f(b) < 0 not fulfilled" << endl;
+            }
+
+            while (n <= nMax) {
+                c = (a + b) / 2;
+                fc = approx(c);
+                if ((fc == 0) || ((b - a) / 2 < tol)) {
+                    return c;
+                }
+                n++;
+                cout << a << " " << b << " " << c << endl;
+                if (approx(a) * approx(c) > 0) {
+                    a = c;
+                } else {
+                    b = c;
+                }
+            }
+            cerr << "Chemical potential could not be calculated within nMax=" << nMax << " with tol=" << tol << ", a=" << a << ", b=" << b << endl; 
+            throw std::overflow_error("");
+        }
+
         int* indexToTuple(int i) {
             static int a[3];
             a[2] = i % L;
@@ -72,6 +110,6 @@ class EnergyLandscape {
 
 int main() {
     EnergyLandscape e = EnergyLandscape(3, "checker");
-
+    e.testBisection();
     return 0;
 }
