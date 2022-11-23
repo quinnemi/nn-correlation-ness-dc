@@ -1,3 +1,5 @@
+#ifndef ARRAYSUPPORT_HPP
+#define ARRAYSUPPORT_HPP
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -39,8 +41,8 @@ void displayArray(vector<double> a, int size) {
     cout << endl;
 }
 
-void displayArray(vector<vector<double>> a, int size) {
-    for (int i=0; i<size; i++) {
+void displayArray(vector<vector<double>> a) {
+    for (int i=0; i<a.size(); i++) {
         displayArray(a[i], a[i].size());
         cout << endl;
     }
@@ -52,3 +54,4 @@ void displayArray(vector<int> a, int size) {
     }
     cout << endl;
 }
+#endif

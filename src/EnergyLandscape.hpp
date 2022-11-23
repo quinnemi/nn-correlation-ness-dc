@@ -1,5 +1,7 @@
+#ifndef ENERGYLANDSCAPE_HPP
+#define ENERGYLANDSCAPE_HPP
+#include "ArraySupport.hpp"
 #include <vector>
-#include <string>
 using namespace std;
 
 class EnergyLandscape {
@@ -9,7 +11,7 @@ class EnergyLandscape {
         double chemPot;
         vector<vector<vector<double>>> energies;
 
-        EnergyLandscape(int L, double beta, string pattern);
+        EnergyLandscape(int L, double beta);
         void createCheckerPattern(double scale);
         vector<vector<double>> getJumpRates(double attemptFreq, double lowerBarrier);
         vector<vector<vector<double>>> getEqOccNum(double concentration, double epsilon);
@@ -24,3 +26,4 @@ class EnergyLandscape {
         int cyclDist(int d);
         int* indexToTuple(int i);
 };
+#endif
