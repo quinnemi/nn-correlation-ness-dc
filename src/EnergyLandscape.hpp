@@ -1,7 +1,6 @@
 #ifndef ENERGYLANDSCAPE_HPP
 #define ENERGYLANDSCAPE_HPP
 #include "ArraySupport.hpp"
-#include <vector>
 using namespace std;
 
 class EnergyLandscape {

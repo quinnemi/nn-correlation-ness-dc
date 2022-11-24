@@ -16,8 +16,6 @@ EnergyLandscape::EnergyLandscape(int L, double beta) {
     this->beta = beta;
     this->energies = vector<vector<vector<double>>>(L, vector<vector<double>>(L, vector<double>(L)));
     createCheckerPattern(1);
-    //if (pattern == "checker") {
-    //}
 }
 
 void EnergyLandscape::createCheckerPattern(double scale) {
