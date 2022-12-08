@@ -1,12 +1,19 @@
 #include "ArraySupport.hpp"
 #include "EnergyLandscape.hpp"
 #include "EnergyLandscape.cpp"
+#include <iostream>
+#include <fstream>
 using namespace std;
 
 int main(){
-    //std::string mode = "checker";
-    //EnergyLandscape* e = new EnergyLandscape(3, 0.1);
-    //e->getChemPot(0.1, 0.0000001);
-    //displayArray(e->getEqOccNum(0.1, 0.000001)[0]);
+    ofstream file;
+    file.open("../../data/BisectionTest/bisectionData.txt");
+    double mu, mu0;
+    EnergyLandscape* el = new EnergyLandscape(5, 1);
+    for (double mu=-200; mu<=300; mu+=1) {
+        mu0 = el->approx(mu, el->getEnergyDistribution(0.00000001), 0.05);
+        file << mu << "\t" << mu0 << endl; 
+    }
+    file.close();
     return 0;
 }

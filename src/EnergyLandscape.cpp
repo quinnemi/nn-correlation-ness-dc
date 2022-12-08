@@ -30,7 +30,6 @@ void EnergyLandscape::createCheckerPattern(double scale) {
 
 vector<vector<double>> EnergyLandscape::getJumpRates(double attemptFreq, double lowerBarrier) {
     double nu = attemptFreq * exp(-(this->beta * lowerBarrier));
-
     auto jumpRate = [this, nu, attemptFreq](int* i, int* j) {
         vector<double> term1 = {1.0, exp(-(this->beta * (acc(this->energies, j) - acc(this->energies, i))))};
         return nu * *min_element(term1.begin(), term1.end());
@@ -54,7 +53,7 @@ vector<vector<vector<double>>> EnergyLandscape::getEqOccNum(double concentration
     double chemPot = getChemPot(concentration, epsilon);
 
     auto eqOccNum = [this, chemPot](int* i) {
-        return 1 / (exp(-this->beta * (acc(this->energies, i) - chemPot)) + 1);  
+        return 1 / (exp(this->beta * (acc(this->energies, i) - chemPot)) + 1);  
     };
 
     vector<vector<vector<double>>> eqOccNums = vector<vector<vector<double>>>(L, vector<vector<double>>(L, vector<double>(L)));
@@ -73,11 +72,11 @@ double EnergyLandscape::getChemPot(double concentration, double epsilon) {
     // calculate site energy distribution g(E), along with sorted values of E
     vector<vector<double>> energyDist = getEnergyDistribution(epsilon);
 
-    double a = -9.0;
-    double b = 10.0;
+    double a = -100.0;
+    double b = 200.0;
     double tol = 1e-8;
 
-    this->chemPot = bisection(energyDist, concentration, 10*a, 10*b, tol, 1000);
+    this->chemPot = bisection(energyDist, concentration, a, b, tol, 1000);
 
     return this->chemPot;
 }
@@ -146,8 +145,6 @@ double EnergyLandscape::bisection(vector<vector<double>> energyDist, double conc
         c = (a + b) / 2.0;
         fc = approx(c, energyDist, concentration);
         if ((fc == 0) || (abs((b - a)) / 2 < tol)) {
-            fa = approx(a, energyDist, concentration);
-            fb = approx(b, energyDist, concentration);
             cout << "bisection ended after n=" << n << " with mu=" << c << " f(mu)=" << fc << " tol=" << tol << endl;
             return c;
         }

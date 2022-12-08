@@ -16,10 +16,10 @@ class EnergyLandscape {
         vector<vector<vector<double>>> getEqOccNum(double concentration, double epsilon);
         double getChemPot(double concentration, double epsilon);
         vector<vector<double>> getEnergyDistribution(double epsilon);
+        double approx(double mu, vector<vector<double>> energyDist, double concentration);
     
     private:
         vector<double> sortEnergies();
-        double approx(double mu, vector<vector<double>> energyDist, double concentration);
         double bisection(vector<vector<double>> energyDist, double concentration, double a, double b, double tol, int nMax);
         int distance(int a[3], int b[3]);
         int cyclDist(int d);
