@@ -4,27 +4,31 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <boost/multiprecision/cpp_bin_float.hpp>
+using namespace boost::multiprecision;
 using namespace std;
 
 int length;
+int length2;
 
 void setLength(int l) {
     length = l;
+    length2 = length * length;
 }
 
 int tupleToIndex(int i[3]) {
-    return i[0] + i[1]*length + i[2]*length*length;
+    return i[0] + i[1]*length + i[2]*length2;
 }
 
 int tupleToIndex(vector<int> i) {
-    return i[0] + i[1]*length + i[2]*length*length;
+    return i[0] + i[1]*length + i[2]*length2;
 }
 
 int* indexToTuple(int i) {
     int* a = new int[3];
     a[2] = i % length;
     a[1] = i / length % length;
-    a[0] = i / (length*length) % length;
+    a[0] = i / length2 % length;
 
     return a;
 }
@@ -34,39 +38,47 @@ int mod(int i) {
     return r < 0 ? r + length : r;
 }
     
-double acc(double** a[], int i[3]) {
+cpp_bin_float_100 acc(cpp_bin_float_100** a[], int i[3]) {
     return a[i[0]][i[1]][i[2]] ;
 }
 
-double acc(vector<vector<vector<double>>> a, int i[3]) {
+cpp_bin_float_100 acc(vector<vector<vector<cpp_bin_float_100>>> a, int i[3]) {
     return a[i[0]][i[1]][i[2]] ;
 }
 
-double acc(vector<vector<vector<double>>> a, vector<int> i) {
+cpp_bin_float_100 acc(vector<vector<vector<cpp_bin_float_100>>> a, vector<int> i) {
     return a[i[0]][i[1]][i[2]] ;
 }
 
-double acc(vector<vector<double>> a, int i[3], int j[3]) {
-    return a[tupleToIndex(i)][tupleToIndex(j)];
+cpp_bin_float_100 acc(vector<vector<cpp_bin_float_100>> a, int i[3], int j[3]) {
+    return a[i[0] + i[1]*length + i[2]*length2][j[0] + j[1]*length + j[2]*length2];
 }
 
-double acc(vector<vector<double>> a, int i[3], vector<int> j) {
-    return a[tupleToIndex(i)][tupleToIndex(j)];
+cpp_bin_float_100 acc(vector<cpp_bin_float_100> a, int i[3]) {
+    return a[i[0] + i[1]*length + i[2]*length2];
 }
 
-double acc(vector<vector<double>> a, vector<int> i, int j[3]) {
-    return a[tupleToIndex(i)][tupleToIndex(j)];
+cpp_bin_float_100 acc(vector<cpp_bin_float_100> a, vector<int> i) {
+    return a[i[0] + i[1]*length + i[2]*length2];
 }
 
-double acc(vector<vector<double>> a, vector<int> i, vector<int> j) {
-    return a[tupleToIndex(i)][tupleToIndex(j)];
+cpp_bin_float_100 acc(vector<vector<cpp_bin_float_100>> a, int i[3], vector<int> j) {
+    return a[i[0] + i[1]*length + i[2]*length2][j[0] + j[1]*length + j[2]*length2];
 }
 
-void set(double** a[], int i[3], double value) {
+cpp_bin_float_100 acc(vector<vector<cpp_bin_float_100>> a, vector<int> i, int j[3]) {
+    return a[i[0] + i[1]*length + i[2]*length2][j[0] + j[1]*length + j[2]*length2];
+}
+
+cpp_bin_float_100 acc(vector<vector<cpp_bin_float_100>> a, vector<int> i, vector<int> j) {
+    return a[i[0] + i[1]*length + i[2]*length2][j[0] + j[1]*length + j[2]*length2];
+}
+
+void setVal(cpp_bin_float_100** a[], int i[3], cpp_bin_float_100 value) {
     a[i[0]][i[1]][i[2]] = value;
 }
 
-void set(vector<vector<vector<double>>> &a, int i[3], double value) {
+void setVal(vector<vector<vector<cpp_bin_float_100>>> &a, int i[3], cpp_bin_float_100 value) {
     a[i[0]][i[1]][i[2]] = value;
 }
 
@@ -128,8 +140,8 @@ bool eqIdx(int a[3], int b[3]) {
     return (a[0] == b[0]) && (a[1] == b[1]) && (a[2] == b[2]);
 }
 
-bool compare(double a, double b, double epsilon) {
-    double diff = a - b;
+bool compare(cpp_bin_float_100 a, cpp_bin_float_100 b, cpp_bin_float_100 epsilon) {
+    cpp_bin_float_100 diff = a - b;
     return (diff < epsilon) && (-diff < epsilon);
 }
 
@@ -140,17 +152,24 @@ void displayArray(int a[], int size) {
     cout << endl;
 }
 
-void displayArray(vector<double> a, int size) {
-    for (int i=0; i<size; i++) {
-        cout << (double)a[i] << " ";
+void displayArray(vector<cpp_bin_float_100> a) {
+    for (int i=0; i<a.size(); i++) {
+        cout << (cpp_bin_float_100)a[i] << " ";
     }
     cout << endl;
 }
 
-void displayArray(vector<vector<double>> a) {
+void displayArray(vector<vector<cpp_bin_float_100>> a) {
     for (int i=0; i<a.size(); i++) {
-        displayArray(a[i], a[i].size());
+        displayArray(a[i]);
         cout << endl;
+    }
+}
+
+void displayArray(vector<vector<vector<cpp_bin_float_100>>> a) {
+    for (int i=0; i<a.size(); i++) {
+        displayArray(a[i]);
+        cout << endl << endl;
     }
 }
 
